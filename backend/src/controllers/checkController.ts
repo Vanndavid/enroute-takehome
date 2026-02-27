@@ -155,6 +155,7 @@ export const deleteCheck = (req: Request, res: Response): void => {
       error: {
         code: "NOT_FOUND",
         message: "Check not found",
+        details: [],
       },
     };
 
