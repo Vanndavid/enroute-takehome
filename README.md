@@ -78,6 +78,7 @@ To add authentication, I would implement a user management system with login and
 Upon successful login, the server would generate a JWT token (with expiration). This token would be used to authenticate API requests between frontend and backend. Protected routes would use middleware to verify the token before allowing access. All actions such as create/delete, will record the user that did it.
 
 I would also consider implementing role-based authorization (e.g., admin vs. standard user) to support future feature expansion.
+
 2. **Improvements:** What other improvements would you implement if this were going to production or if you have more time?
 
 If this system were going to production or if I had more time, I would:
