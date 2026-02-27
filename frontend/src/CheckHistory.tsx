@@ -1,18 +1,21 @@
 import { useState, useEffect } from "react";
 import type { Vehicle, Check } from "./types";
 import { api } from "./api";
+import type { ToastType } from "./Toast";
 
 type IssueFilter = "all" | "true" | "false";
 
 interface Props {
   refreshTrigger?: number;
+  showToast: (message: string, type: ToastType) => void;
 }
 
-export function CheckHistory({ refreshTrigger }: Props) {
+export function CheckHistory({ refreshTrigger, showToast }: Props) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [hasIssueFilter, setHasIssueFilter] = useState<IssueFilter>("all");
   const [checks, setChecks] = useState<Check[]>([]);
+  const [deletingCheckId, setDeletingCheckId] = useState<string | null>(null);
 
   // Track which params fetched
   const [lastFetchedParams, setLastFetchedParams] = useState<{
@@ -76,6 +79,22 @@ export function CheckHistory({ refreshTrigger }: Props) {
     return new Date(isoString).toLocaleString();
   };
 
+  const handleDelete = async (checkId: string) => {
+    setDeletingCheckId(checkId);
+
+    try {
+      await api.deleteCheck(checkId);
+      setChecks((previousChecks) =>
+        previousChecks.filter((check) => check.id !== checkId),
+      );
+      showToast("Inspection deleted successfully", "success");
+    } catch {
+      showToast("Failed to delete inspection", "error");
+    } finally {
+      setDeletingCheckId(null);
+    }
+  };
+
   return (
     <div className="check-history">
       <h2>View Inspection History</h2>
@@ -129,10 +148,19 @@ export function CheckHistory({ refreshTrigger }: Props) {
                 <span className="check-date">
                   {formatDate(check.createdAt)}
                 </span>
-                <span
-                  className={`status-badge ${check.hasIssue ? "fail" : "ok"}`}>
-                  {check.hasIssue ? "⚠ Has Issues" : "✓ All OK"}
-                </span>
+                <div className="check-header-actions">
+                  <span
+                    className={`status-badge ${check.hasIssue ? "fail" : "ok"}`}>
+                    {check.hasIssue ? "⚠ Has Issues" : "✓ All OK"}
+                  </span>
+                  <button
+                    type="button"
+                    className="delete-check-button"
+                    onClick={() => handleDelete(check.id)}
+                    disabled={deletingCheckId === check.id}>
+                    {deletingCheckId === check.id ? "Deleting..." : "Delete"}
+                  </button>
+                </div>
               </div>
 
               <div className="check-details">

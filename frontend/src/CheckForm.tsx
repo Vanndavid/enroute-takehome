@@ -1,19 +1,34 @@
 import { useState, useEffect } from "react";
-import type { Vehicle, CheckItem, CheckItemKey, ErrorResponse } from "./types";
+import type {
+  Vehicle,
+  CheckItem,
+  CheckItemKey,
+  CheckItemStatus,
+  ErrorResponse,
+} from "./types";
 import { api } from "./api";
 
-const CHECK_ITEMS: CheckItemKey[] = ["TYRES", "BRAKES", "LIGHTS"];
+const CHECK_ITEMS: CheckItemKey[] = [
+  "TYRES",
+  "BRAKES",
+  "LIGHTS",
+  "OIL",
+  "COOLANT",
+];
 
 interface Props {
   onSuccess: () => void;
+  showToast: (message: string, type: "success" | "error") => void;
 }
 
-export function CheckForm({ onSuccess }: Props) {
+export function CheckForm({ onSuccess, showToast }: Props) {
+  const NOTE_MAX_LENGTH = 300;
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [odometerKm, setOdometerKm] = useState("");
+  const [note, setNote] = useState("");
   const [items, setItems] = useState<CheckItem[]>(
-    CHECK_ITEMS.map((key) => ({ key, status: true as unknown as "OK" })),
+    CHECK_ITEMS.map((key) => ({ key, status: "OK" })),
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,12 +38,10 @@ export function CheckForm({ onSuccess }: Props) {
     api.getVehicles().then(setVehicles).catch(console.error);
   }, []);
 
-  const handleItemStatusChange = (key: CheckItemKey, status: boolean) => {
+  const handleItemStatusChange = (key: CheckItemKey, status: CheckItemStatus) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.key === key
-          ? { ...item, status: status as unknown as "OK" | "FAIL" }
-          : item,
+        item.key === key ? { ...item, status } : item,
       ),
     );
   };
@@ -42,16 +55,17 @@ export function CheckForm({ onSuccess }: Props) {
     try {
       await api.createCheck({
         vehicleId: selectedVehicle,
-        odometerKm: parseFloat(odometerKm),
+        odometerKm: Number(odometerKm),
         items,
+        note: note.trim() || undefined,
       });
 
       // Reset form and display success notification
       setSelectedVehicle("");
       setOdometerKm("");
-      setItems(
-        CHECK_ITEMS.map((key) => ({ key, status: true as unknown as "OK" })),
-      );
+      setNote("");
+      setItems(CHECK_ITEMS.map((key) => ({ key, status: "OK" })));
+      showToast("Inspection submitted successfully.", "success");
       onSuccess();
     } catch (err: unknown) {
       const errorResponse = err as ErrorResponse;
@@ -59,8 +73,18 @@ export function CheckForm({ onSuccess }: Props) {
         setValidationErrors(
           errorResponse.error.details.map((d) => `${d.field}: ${d.reason}`),
         );
+        const validationSummary = errorResponse.error.details
+          .map((d) => `${d.field}: ${d.reason}`)
+          .join(" • ");
+        showToast(
+          `Could not submit check: ${validationSummary || errorResponse.error.message}`,
+          "error",
+        );
       } else {
-        setError("Failed to submit check. Please try again.");
+        const fallbackMessage =
+          errorResponse.error?.message || "Failed to submit check. Please try again.";
+        setError(fallbackMessage);
+        showToast(fallbackMessage, "error");
       }
     } finally {
       setLoading(false);
@@ -103,12 +127,29 @@ export function CheckForm({ onSuccess }: Props) {
         <label htmlFor="odometer">Odometer (km) *</label>
         <input
           id="odometer"
-          type="text"
+          type="number"
           value={odometerKm}
           onChange={(e) => setOdometerKm(e.target.value)}
+          min="1"
+          step="1"
           placeholder="Enter odometer reading"
           required
         />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="note">Notes (optional)</label>
+        <textarea
+          id="note"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          maxLength={NOTE_MAX_LENGTH}
+          rows={4}
+          placeholder="Add any additional inspection notes"
+        />
+        <small className="character-counter">
+          {note.length}/{NOTE_MAX_LENGTH}
+        </small>
       </div>
 
       <div className="form-group">
@@ -117,14 +158,30 @@ export function CheckForm({ onSuccess }: Props) {
           {items.map((item) => (
             <div key={item.key} className="checklist-item">
               <span className="item-label">{item.key}</span>
-              <select
-                value={String(item.status)}
-                onChange={(e) =>
-                  handleItemStatusChange(item.key, e.target.value === "true")
-                }>
-                <option value="true">OK</option>
-                <option value="false">FAIL</option>
-              </select>
+              <div className="radio-group">
+                <label htmlFor={`${item.key}-ok`}>
+                  <input
+                    id={`${item.key}-ok`}
+                    type="radio"
+                    name={`status-${item.key}`}
+                    value="OK"
+                    checked={item.status === "OK"}
+                    onChange={() => handleItemStatusChange(item.key, "OK")}
+                  />
+                  OK
+                </label>
+                <label htmlFor={`${item.key}-fail`}>
+                  <input
+                    id={`${item.key}-fail`}
+                    type="radio"
+                    name={`status-${item.key}`}
+                    value="FAIL"
+                    checked={item.status === "FAIL"}
+                    onChange={() => handleItemStatusChange(item.key, "FAIL")}
+                  />
+                  FAIL
+                </label>
+              </div>
             </div>
           ))}
         </div>

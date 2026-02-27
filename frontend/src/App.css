@@ -99,6 +99,10 @@ main {
   font-size: 0.85rem;
 }
 
+.character-counter {
+  text-align: right;
+}
+
 /* Checklist Styles */
 .checklist {
   border: 1px solid #ddd;
@@ -242,6 +246,12 @@ button[type="submit"]:disabled {
   border-bottom: 1px solid #eee;
 }
 
+.check-header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
 .check-date {
   font-size: 0.9rem;
   color: #7f8c8d;
@@ -262,6 +272,27 @@ button[type="submit"]:disabled {
 .status-badge.fail {
   background: #f8d7da;
   color: #721c24;
+}
+
+.delete-check-button {
+  width: auto;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #e74c3c;
+  border-radius: 4px;
+  background: white;
+  color: #c0392b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.delete-check-button:hover:not(:disabled) {
+  background: #fdeaea;
+}
+
+.delete-check-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .check-details p {
