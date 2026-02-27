@@ -18,9 +18,10 @@ const CHECK_ITEMS: CheckItemKey[] = [
 
 interface Props {
   onSuccess: () => void;
+  showToast: (message: string, type: "success" | "error") => void;
 }
 
-export function CheckForm({ onSuccess }: Props) {
+export function CheckForm({ onSuccess, showToast }: Props) {
   const NOTE_MAX_LENGTH = 300;
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState("");
@@ -64,6 +65,7 @@ export function CheckForm({ onSuccess }: Props) {
       setOdometerKm("");
       setNote("");
       setItems(CHECK_ITEMS.map((key) => ({ key, status: "OK" })));
+      showToast("Inspection submitted successfully.", "success");
       onSuccess();
     } catch (err: unknown) {
       const errorResponse = err as ErrorResponse;
@@ -71,8 +73,18 @@ export function CheckForm({ onSuccess }: Props) {
         setValidationErrors(
           errorResponse.error.details.map((d) => `${d.field}: ${d.reason}`),
         );
+        const validationSummary = errorResponse.error.details
+          .map((d) => `${d.field}: ${d.reason}`)
+          .join(" • ");
+        showToast(
+          `Could not submit check: ${validationSummary || errorResponse.error.message}`,
+          "error",
+        );
       } else {
-        setError("Failed to submit check. Please try again.");
+        const fallbackMessage =
+          errorResponse.error?.message || "Failed to submit check. Please try again.";
+        setError(fallbackMessage);
+        showToast(fallbackMessage, "error");
       }
     } finally {
       setLoading(false);
