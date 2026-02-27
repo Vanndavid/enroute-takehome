@@ -99,6 +99,10 @@ main {
   font-size: 0.85rem;
 }
 
+.character-counter {
+  text-align: right;
+}
+
 /* Checklist Styles */
 .checklist {
   border: 1px solid #ddd;

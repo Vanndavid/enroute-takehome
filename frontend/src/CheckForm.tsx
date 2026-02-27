@@ -21,9 +21,11 @@ interface Props {
 }
 
 export function CheckForm({ onSuccess }: Props) {
+  const NOTE_MAX_LENGTH = 300;
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [odometerKm, setOdometerKm] = useState("");
+  const [note, setNote] = useState("");
   const [items, setItems] = useState<CheckItem[]>(
     CHECK_ITEMS.map((key) => ({ key, status: "OK" })),
   );
@@ -54,11 +56,13 @@ export function CheckForm({ onSuccess }: Props) {
         vehicleId: selectedVehicle,
         odometerKm: Number(odometerKm),
         items,
+        note: note.trim() || undefined,
       });
 
       // Reset form and display success notification
       setSelectedVehicle("");
       setOdometerKm("");
+      setNote("");
       setItems(CHECK_ITEMS.map((key) => ({ key, status: "OK" })));
       onSuccess();
     } catch (err: unknown) {
@@ -119,6 +123,21 @@ export function CheckForm({ onSuccess }: Props) {
           placeholder="Enter odometer reading"
           required
         />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="note">Notes (optional)</label>
+        <textarea
+          id="note"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          maxLength={NOTE_MAX_LENGTH}
+          rows={4}
+          placeholder="Add any additional inspection notes"
+        />
+        <small className="character-counter">
+          {note.length}/{NOTE_MAX_LENGTH}
+        </small>
       </div>
 
       <div className="form-group">
