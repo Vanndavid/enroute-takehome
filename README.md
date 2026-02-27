@@ -72,32 +72,46 @@ Note that this task is **completely optional** and we do not expect you to finis
 Please answer these briefly:
 
 1. **Authentication:** If we need to add authentication to this system, how would you approach it?
+
 To add authentication, I would implement a user management system with login and registration functionality (or admin-created users). Usernames would be based on email addresses, and passwords would be securely hashed using bcrypt.
+
 Upon successful login, the server would generate a JWT token (with expiration). This token would be used to authenticate API requests between frontend and backend. Protected routes would use middleware to verify the token before allowing access. All actions such as create/delete, will record the user that did it.
+
 I would also consider implementing role-based authorization (e.g., admin vs. standard user) to support future feature expansion.
 2. **Improvements:** What other improvements would you implement if this were going to production or if you have more time?
+
 If this system were going to production or if I had more time, I would:
--Add stronger schema-based validation
--Improve centralized error handling
--Implement structured logging and monitoring
--Add rate limiting for API protection
--Add pagination and filtering for listing data
--Dockerize the application for consistent deployment
--Improve UI/UX consistency and accessibility
--Use Axios with API interceptors for standardized error handling
--Refactor the folder structure to follow more standard architectural patterns
+
+- Add stronger schema-based validation
+- Improve centralized error handling
+- Implement structured logging and monitoring
+- Add rate limiting for API protection
+- Add pagination and filtering for listing data
+- Dockerize the application for consistent deployment
+- Improve UI/UX consistency and accessibility
+- Use Axios with API interceptors for standardized error handling
+- Refactor the folder structure to follow more standard architectural patterns
 3. **Tech Stack Experience:** Do you have experience with PHP, Vue.js, or mobile app development (React Native/Flutter)?
+
 Yes, I have extensive commercial experience with PHP (Laravel) and have built multiple production systems including CRM, HR, and project management platforms. I have also worked with Vue.js in professional environments.
 Although I do not have commercial experience with Flutter or React Native, I have experimented with Flutter and am familiar with its development concepts.
 You can view my portfolio at: https://vanndavidteng.com
+
 4. **AI / Tools:** What tools/assistants did you use while working on this assignment (e.g., GitHub Copilot, ChatGPT, etc.)? We appreciate AI usage, we're interested in _how_ you use these tools.
+
 For this assignment, I used AI tools (such as ChatGPT/Codex) to assist with implementation. I provided small, focused instructions for each task and reviewed the generated code carefully before integrating it.
 All logic was validated by running tests, debugging issues, and ensuring I fully understood each part of the implementation. I treat AI as a productivity tool to accelerate development, but I maintain full ownership of the final solution and decision-making process.
+
 5. **Visa Status:** What visa are you currently on?
+
 I am currently on temporary graduate visa (subclass 485), valid until February 2028, with full unrestricted working rights in Australia.
+
 6. **Languages:** What language(s) do you speak and what's your proficiency level?
+
 English – Professional working proficiency
+
 Khmer – Native proficiency
+
 > **Tip:** You can write your answers directly in this README.md file below each question.
 
 ---
